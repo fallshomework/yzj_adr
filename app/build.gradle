@@ -11,9 +11,34 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    buildTypes {
+    signingConfigs {
+        debug {
+            storeFile file("${rootProject.projectDir.getAbsolutePath()}/keystore/debug.keystore")
+        }
         release {
+            def signingPropFile = new File("${rootProject.projectDir.getAbsolutePath()}/signing.properties")
+            if (signingPropFile.exists()) {
+                def signingProperties = new Properties()
+                signingProperties.load(new FileInputStream(signingPropFile))
+
+                storeFile file("${rootProject.projectDir.getAbsolutePath()}/keystore/yzj.keystore")
+                storePassword signingProperties["store.pass"]
+                keyAlias signingProperties["key.alias"]
+                keyPassword signingProperties["key.pass"]
+            }
+        }
+    }
+    buildTypes {
+        debug {
             minifyEnabled false
+            versionNameSuffix 'dev'
+            applicationIdSuffix '.test'
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
